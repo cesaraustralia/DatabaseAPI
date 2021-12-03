@@ -4,8 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:cesarau@localhost/postgres"
-# app.debug = True“
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:cesarau@localhost:5433/postgres"
 
 db = SQLAlchemy(app)
 
@@ -40,7 +39,7 @@ class paperModel(db.Model):
     __tablename__ = "papers"
     id = db.Column(db.Integer, primary_key=True)
     author = db.Column(db.String(200), nullable=True)
-    year = db.Column(db.Intger, nullable=False)
+    year = db.Column(db.Integer, nullable=False)
     title = db.Column(db.String(300), nullable=False, unique=True)
     journal = db.Column(db.String(200))
     doi = db.Column(db.String(200))
