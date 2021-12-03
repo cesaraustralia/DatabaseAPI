@@ -4,21 +4,22 @@
 ## Installing
 First create a Python environment and activate it:
 
-```python
-virtualenv -p python ~/DatabaseAPI
+```bash
+cd ~/DatabaseAPI
+python -m venv ./venv
 
 ```
 
-```python
-cd ~/DatabaseAPI
+```bash
+# cd ~/DatabaseAPI
 source ./venv/bin/activate
 ```
 
 Now install all the Python packages and save the into the `requirement.txt` file.
 
-```python
+```bash
 # install packages with pip
-pip install flask
+pip install flask flask_sqlalchemy
 
 # freeze packages
 pip freeze > requirement.txt
