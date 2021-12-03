@@ -69,6 +69,14 @@ def chem_list():
         output.append(currChem)
     return jsonify(output)
 
+@app.route("/api/chemId/<int:id>", methods=["GET"])
+def chem_id(id):
+    chemval = chemsModel.query.first()
+    output = []
+    output["chem_active"] = chemval.chem_active
+    return jsonify(output)
+
+
 @app.route("/api/species", methods=["GET"])
 def species_list():
     allspecies = speciesModel.query.all()
@@ -79,7 +87,6 @@ def species_list():
         currSp["species"] = sp.species
         output.append(currSp)
     return jsonify(output)
-
 
 
 if __name__ == "__main__":
