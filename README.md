@@ -15,20 +15,20 @@ python -m venv ./venv
 source ./venv/bin/activate
 ```
 
-Now install all the Python packages and save the into the `requirement.txt` file.
+Now install all the Python packages and save the into the `requirements.txt` file.
 
 ```bash
 # install packages with pip
 pip install flask flask_sqlalchemy
 
 # freeze packages
-pip freeze > requirement.txt
+pip freeze > requirements.txt
 ```
 
 This will be used to install the required package in the docker image.
 
-Use `pip` to install the packages in different system or docker images:
+Use `pip` to install the packages in a different system or in docker images:
 
 ```bash
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
