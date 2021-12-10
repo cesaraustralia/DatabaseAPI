@@ -26,3 +26,9 @@ pip freeze > requirement.txt
 ```
 
 This will be used to install the required package in the docker image.
+
+Use `pip` to install the packages in different system or docker images:
+
+```bash
+pip install -r requirement.txt
+```

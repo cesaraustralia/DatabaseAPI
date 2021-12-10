@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:cesarau@localhost:5433/postgres"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:cesarau@localhost:5432/postgres"
 
 db = SQLAlchemy(app)
 
@@ -69,11 +69,13 @@ def chem_list():
         output.append(currChem)
     return jsonify(output)
 
-@app.route("/api/chemId/<int:id>", methods=["GET"])
+@app.route("/api/chemId=<int:id>", methods=["GET"])
 def chem_id(id):
-    chemval = chemsModel.query.first()
-    output = []
-    output["chem_active"] = chemval.chem_active
+    ch = chemsModel.query.filter(chemsModel.id == id).first()
+    output = {}
+    output["chem_active"] = ch.chem_active
+    output["chem_group"] = ch.chem_group
+    output["chem_irac"] = ch.chem_irac
     return jsonify(output)
 
 
