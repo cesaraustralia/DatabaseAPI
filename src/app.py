@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:cesarau@172.20.0.5:5432/postgres"
+# app.config["SQLALCHEMY_POOL_RECYCLE"] = 10 # second to recycle the db connection
 
 db = SQLAlchemy(app)
 
@@ -92,4 +93,4 @@ def species_list():
 
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=5000)
+	app.run(host="0.0.0.0", port=5000, debug=False)
