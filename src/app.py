@@ -1,6 +1,8 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
-# from flask_restful import Resource, Api, abort, reqparse
+# from flask_swagger_ui import get_swaggerui_blueprint
+# from flask_restful import Api, abort
+# from routes import request_api
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -8,6 +10,26 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:cesarau@172.20.0.5:5
 # app.config["SQLALCHEMY_POOL_RECYCLE"] = 10 # second to recycle the db connection
 
 db = SQLAlchemy(app)
+
+
+# ## create swagger ui for api
+# @app.route("/static/<path:path>")
+# def send_static(path):
+#     return send_from_directory("static", path)
+
+# SWAGGER_URL = "/swagger"
+# API_URL = "/static/swagger.json"
+# SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
+#     SWAGGER_URL,
+#     API_URL,
+#     config={
+#         "app_name": "Cesar-WEB-API"
+#     }
+# )
+# app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+
+# app.register_blueprint(request_api.get_blueprint())
+
 
 # class for chem table
 class chemsModel(db.Model):
@@ -54,9 +76,37 @@ class paperModel(db.Model):
         self.doi = doi
 
 
+## define the get requests
+# @app.route("/")
+# @app.route("/api")
+# @app.route("/api/")
+# def Main():
+#     return "Welcome to the Cesar Australia API!"
+
+
+# @app.route("/api/docs")
+# def get_docs():
+#     print("sending docs")
+#     return render_template("swaggerui.html")
+
+
+# @app.route('/')
+# def get_root():
+#     print('sending root')
+#     return render_template('index.html')
+
+@app.route('/api/docs')
+def get_docs():
+    print('sending docs')
+    return render_template('swaggerui.html')
+
 @app.route('/api')
-def Main():
-    return 'Welcome to the Cesar Australia API!'
+def get_api():
+    hello_dict = {'en': 'Hello', 'es': 'Hola'}
+    lang = request.args.get('lang')
+    return jsonify(hello_dict[lang])
+
+
 
 @app.route("/api/chems", methods=["GET"])
 def chem_list():
@@ -72,7 +122,9 @@ def chem_list():
 
 @app.route("/api/chemId=<int:id>", methods=["GET"])
 def chem_id(id):
-    ch = chemsModel.query.filter(chemsModel.id == id).first()
+    ch = chemsModel.query.filter(chemsModel.id == id).first_or_404(
+        description = 'The id {} was not found!'.format(id)
+    )
     output = {}
     output["chem_active"] = ch.chem_active
     output["chem_group"] = ch.chem_group
@@ -93,4 +145,4 @@ def species_list():
 
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=5000, debug=False)
+	app.run(host="0.0.0.0", port=5001, debug=True)
