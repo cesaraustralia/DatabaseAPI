@@ -1,40 +1,149 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "version": "1.0.0",
-    "title": "Hello API",
-    "description": "An API to return hello in requested language"
+    "version": "0.0.1",
+    "title": "Cesar Web API",
+    "description": "An API to query Cesar database on AWS server",
+    "contact": {
+      "email": "rvalavi@cesaraustralia.com",
+      "url": "https://cesaraustralia.com/"
+    }
   },
   "paths": {
-    "/api": {
+    "/api/chems": {
+      "description": "Get all chems by this",
       "get": {
         "tags": [
-          "Hello"
+          "Chemicals"
         ],
-        "description": "Returns hello in specified language",
+        "description": "Returns all chems",
         "parameters": [
           {
             "in": "query",
-            "name": "lang",
+            "name": "chems",
             "required": true,
-            "description": "language",
+            "description": "get all the chems",
             "schema": {
               "type": "string",
-              "example": "es"
+              "example": "/api/chems"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "hello in the requested language",
+            "description": "Successful operation",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
-                  "type": "string",
-                  "example": "hola"
+                  "$ref": "#/components/schemas/chem"
                 }
               }
             }
+          },
+          "404": {
+            "description": "Method Not Found. (Typically means we couldn't find the Id)."
+          }
+        }
+      }
+    },
+    "/api/chemId={chemID}": {
+      "description": "get chems by id",
+      "get": {
+        "tags": [
+          "Chemicals"
+        ],
+        "description": "Returns all chems",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "chemID",
+            "required": true,
+            "description": "get a chemical information by id",
+            "schema": {
+              "type": "integer",
+              "example": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/chem"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Method Not Found. (Typically means we couldn't find the Id)."
+          }
+        }
+      }
+    },
+    "/api/species": {
+      "description": "Get all species by this",
+      "get": {
+        "tags": [
+          "Species"
+        ],
+        "description": "Returns all species",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "chems",
+            "required": true,
+            "description": "get all the species",
+            "schema": {
+              "type": "string",
+              "example": "/api/species"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/species"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Method Not Found. (Typically means we couldn't find the Id)."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "chem": {
+        "type": "object",
+        "properties": {
+          "chem_active": {
+            "type": "string",
+            "description": "The active ingridients"
+          },
+          "chem_group": {
+            "type": "string",
+            "description": "The chemical group"
+          },
+          "chem_irac": {
+            "type": "string",
+            "description": "The chemical IRAC"
+          }
+        }
+      },
+      "species": {
+        "type": "object",
+        "properties": {
+          "species": {
+            "type": "string",
+            "description": "The species scientific name"
           }
         }
       }

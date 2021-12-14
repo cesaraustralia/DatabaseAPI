@@ -1,7 +1,8 @@
+venv
 venv/*
-venv/
 */venv
 README.md
 Dockerfile
 .gitignore
 .dockerignore
+openapi.yaml
