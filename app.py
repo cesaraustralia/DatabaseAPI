@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, abort
 from flask_sqlalchemy import SQLAlchemy
 # from flask_swagger_ui import get_swaggerui_blueprint
 # from flask_restful import Api, abort
@@ -73,7 +73,7 @@ def get_docs():
     return render_template("swaggerui.html")
 
 
-@app.route("/api/chems", methods=["GET"])
+@app.route("/api/chems/all", methods=["GET"])
 def chem_list():
     allchems = chemsModel.query.all()
     output = []
@@ -85,7 +85,7 @@ def chem_list():
         output.append(currChem)
     return jsonify(output)
 
-@app.route("/api/chemId=<int:id>", methods=["GET"])
+@app.route("/api/chems/id=<int:id>", methods=["GET"])
 def chem_id(id):
     ch = chemsModel.query.filter(chemsModel.id == id).first_or_404(
         description = 'The id {} was not found!'.format(id)
@@ -96,18 +96,49 @@ def chem_id(id):
     output["chem_irac"] = ch.chem_irac
     return jsonify(output)
 
+@app.route("/api/chems/active=<query>", methods=["GET"])
+def chem_by_active(query):
+    search = "%{}%".format(query)
+    chemQuery = chemsModel.query.filter(chemsModel.chem_active.like(search)).all()
+    if len(chemQuery) < 1:
+        abort(404, 
+            description = "No active similar to {} was found!".format(str(query))
+        )
+    output = []
+    for ch in chemQuery:
+        currChem = {}
+        currChem["chem_active"] = ch.chem_active
+        currChem["chem_group"] = ch.chem_group
+        currChem["chem_irac"] = ch.chem_irac
+        output.append(currChem)
+    return jsonify(output)
 
-@app.route("/api/species", methods=["GET"])
+@app.route("/api/species/all", methods=["GET"])
 def species_list():
     allspecies = speciesModel.query.all()
     output = []
     for sp in allspecies:
         currSp = {}
         # currSp["id"] = sp.id
-        currSp["species"] = sp.species
+        currSp["name"] = sp.species
+        output.append(currSp)
+    return jsonify(output)
+
+@app.route("/api/species/name=<query>", methods=["GET"])
+def sp_by_name(query):
+    search = "%{}%".format(query)
+    speciesQuery = speciesModel.query.filter(speciesModel.species.like(search)).all()
+    if len(speciesQuery) < 1:
+        abort(404, 
+            description = "No species name similar to {} was found!".format(str(query))
+        )
+    output = []
+    for sp in speciesQuery:
+        currSp = {}
+        currSp["name"] = sp.species
         output.append(currSp)
     return jsonify(output)
 
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=5001, debug=True)
+	app.run(host="0.0.0.0", port=5000, debug=False)

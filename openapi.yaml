@@ -1,14 +1,18 @@
 openapi: 3.0.0
 info:
-  version: 0.0.1
+  version: v0.0.1
   title: Cesar Web API
   description: An API to query Cesar database on AWS server
   contact:
+    name: API developer
     email: "rvalavi@cesaraustralia.com"
-    url: https://cesaraustralia.com/
+    # url: https://github.com/rvalavi
+externalDocs:
+  description: Visit Cesar Australia website
+  url: https://cesaraustralia.com/
 
 paths:
-  /api/chems:
+  /api/chems/all:
     description: Get all chems by this
     get:
       tags:
@@ -16,12 +20,12 @@ paths:
       description: Returns all chems
       parameters:
         - in: query
-          name: chems
+          name: all
           required: true
           description: get all the chems
           schema:
             type: string
-            example: /api/chems
+            example: /api/chems/all
 
       responses:
         '200':
@@ -33,12 +37,12 @@ paths:
         '404':
           description: Method Not Found. (Typically means we couldn't find the Id).
           
-  /api/chemId={chemID}:
+  /api/chems/id={chemID}:
     description: get chems by id
     get:
       tags:
         - Chemicals
-      description: Returns all chems
+      description: Returns chems by id
       parameters:
         - in: path
           name: chemID
@@ -58,7 +62,33 @@ paths:
         '404':
           description: Method Not Found. (Typically means we couldn't find the Id).
           
-  /api/species:
+  /api/chems/active={search}:
+    description: get chems by searching chem_active
+    get:
+      tags:
+        - Chemicals
+      description: Returns chems by search chem_active
+      parameters:
+        - in: path
+          name: search
+          required: true
+          description: get a chemical information by searching chem_active
+          schema:
+            type: string
+            example: Ace
+
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/chem'
+        '404':
+          description: Method Not Found. (Typically means we couldn't find the Id).
+          
+          
+  /api/species/all:
     description: Get all species by this
     get:
       tags:
@@ -66,7 +96,7 @@ paths:
       description: Returns all species
       parameters:
         - in: query
-          name: chems
+          name: all
           required: true
           description: get all the species
           schema:
@@ -82,6 +112,31 @@ paths:
                 $ref: '#/components/schemas/species'
         '404':
           description: Method Not Found. (Typically means we couldn't find the Id).
+          
+  /api/species/name={search}:
+    description: get species by searching names
+    get:
+      tags:
+        - Species
+      description: Returns species by search names
+      parameters:
+        - in: path
+          name: search
+          required: true
+          description: get a species information by searching names
+          schema:
+            type: string
+            example: Br
+
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/species'
+        '404':
+          description: Method Not Found. The species name not found!
         
 components:
   schemas:
@@ -100,6 +155,6 @@ components:
     species:
       type: object
       properties:
-        species:
+        name:
           type: string
           description: The species scientific name
