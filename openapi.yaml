@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   version: v0.0.1
-  title: Cesar Web API
+  title: Cesar Australia Web API
   description: An API to query Cesar database on AWS server
   contact:
     name: API developer
