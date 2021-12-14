@@ -6,7 +6,7 @@ New get request can be added to the `app.py` script. The new get request should 
 
 ## Containerisation
 To containerise the app:
-* copy all the files in the docker image and run the app
+* write a Dockerfile and copy all the files in the docker image
 * build the image and run a container
 * create a docker network with a subnet by:
 ```bash
@@ -24,4 +24,6 @@ docker network connect apinetwork apicontainter
 See [here](https://dev.to/rizkyrajitha/connect-api-and-a-database-with-docker-network-299g) for more details.
 
 ## API on AWS server
-Add pull the API docker iamge and run on the EC2 server. Create a docker network and add both API and PostgreSQL containers to the network.
+* pull the API docker iamge and run on the EC2 server
+* create a docker network and add both API and PostgreSQL containers to the network
+* make sure the port 5000 is accessible from the EC2 instance.
