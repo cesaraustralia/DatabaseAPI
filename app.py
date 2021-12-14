@@ -76,35 +76,35 @@ class paperModel(db.Model):
         self.doi = doi
 
 
-## define the get requests
-# @app.route("/")
-# @app.route("/api")
-# @app.route("/api/")
-# def Main():
-#     return "Welcome to the Cesar Australia API!"
+# define the get requests
+@app.route("/")
+@app.route("/api")
+@app.route("/api/")
+def Main():
+    return "Welcome to the Cesar Australia API!"
 
 
-# @app.route("/api/docs")
-# def get_docs():
-#     print("sending docs")
-#     return render_template("swaggerui.html")
-
-
-# @app.route('/')
-# def get_root():
-#     print('sending root')
-#     return render_template('index.html')
-
-@app.route('/api/docs')
+@app.route("/api/docs")
 def get_docs():
-    print('sending docs')
-    return render_template('swaggerui.html')
+    print("sending docs")
+    return render_template("swaggerui.html")
 
-@app.route('/api')
-def get_api():
-    hello_dict = {'en': 'Hello', 'es': 'Hola'}
-    lang = request.args.get('lang')
-    return jsonify(hello_dict[lang])
+
+@app.route('/')
+def get_root():
+    print('sending root')
+    return render_template('index.html')
+
+# @app.route('/api/docs')
+# def get_docs():
+#     print('sending docs')
+#     return render_template('swaggerui.html')
+
+# @app.route('/api')
+# def get_api():
+#     hello_dict = {'en': 'Hello', 'es': 'Hola'}
+#     lang = request.args.get('lang')
+#     return jsonify(hello_dict[lang])
 
 
 
