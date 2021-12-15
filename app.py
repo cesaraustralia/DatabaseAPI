@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, abort
+from flask import Flask, jsonify, render_template, abort, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 # from flask_swagger_ui import get_swaggerui_blueprint
 # from flask_restful import Api, abort
@@ -63,8 +63,8 @@ class paperModel(db.Model):
 @app.route("/")
 @app.route("/api")
 @app.route("/api/")
-def Main():
-    return "Welcome to the Cesar Australia API!"
+def home():
+    return redirect(url_for("get_docs")) # re-direct to docs
 
 
 @app.route("/api/docs")

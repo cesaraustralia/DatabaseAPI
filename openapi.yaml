@@ -2,11 +2,11 @@ openapi: 3.0.0
 info:
   version: v0.0.1
   title: Cesar Australia Web API
-  description: An API to query Cesar database on AWS server
+  description: Welcome to Cesar Australia Web API. This is an API to query the Cesar database hosted on AWS server.
   contact:
     name: API developer
     email: "rvalavi@cesaraustralia.com"
-    # url: https://github.com/rvalavi
+    url: https://github.com/rvalavi
 externalDocs:
   description: Visit Cesar Australia website
   url: https://cesaraustralia.com/
