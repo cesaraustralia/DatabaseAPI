@@ -1,12 +1,11 @@
 from flask import Flask, jsonify, render_template, abort, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-# from flask_swagger_ui import get_swaggerui_blueprint
-# from flask_restful import Api, abort
-# from routes import request_api
+from urllib.parse import quote 
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:cesarau@172.20.0.5:5432/postgres"
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@172.20.0.5:5432/postgres" % quote("{{ dbpass }}")
 # app.config["SQLALCHEMY_POOL_RECYCLE"] = 10 # second to recycle the db connection
 
 db = SQLAlchemy(app)
