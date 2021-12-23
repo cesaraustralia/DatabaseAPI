@@ -1,16 +1,25 @@
-from flask import Flask, jsonify, render_template, abort, redirect, url_for
+from flask import Flask, request, jsonify, render_template, abort, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_marshmallow import Marshmallow
 from urllib.parse import quote 
 
 
+# from routes import api
+
 app = Flask(__name__)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@172.20.0.5:5432/postgres" % quote("{{ dbpass }}")
+# app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@172.20.0.5:5432/postgres" % quote("{{ dbpass }}")
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@localhost:5432/postgres" % quote("cesardb@aws2021")
 # app.config["SQLALCHEMY_POOL_RECYCLE"] = 10 # second to recycle the db connection
 
+# init db
 db = SQLAlchemy(app)
+# init ma
+ma = Marshmallow(app)
 
 # app.register_blueprint(request_api.get_blueprint())
+
+# app.register_blueprint(api)
 
 
 # class for chem table
@@ -58,6 +67,16 @@ class paperModel(db.Model):
         self.doi = doi
 
 
+# create schema for the tables
+# allowed feild to show on the get requests
+class ChemSchema(ma.Schema):
+	class Meta:
+		fields = ("chem_active", "chem_group", "chem_irac")
+
+# init schema
+chem_schema = ChemSchema(many=False)
+chems_schema = ChemSchema(many=True)
+
 # define the get requests
 @app.route("/")
 @app.route("/api")
@@ -72,45 +91,76 @@ def get_docs():
     return render_template("swaggerui.html")
 
 
+# @app.route("/api/chems/all", methods=["GET"])
+# def chem_list():
+#     allchems = chemsModel.query.all()
+#     output = []
+#     for ch in allchems:
+#         currChem = {}
+#         currChem["chem_active"] = ch.chem_active
+#         currChem["chem_group"] = ch.chem_group
+#         currChem["chem_irac"] = ch.chem_irac
+#         output.append(currChem)
+#     return jsonify(output)
+
+# get request with schema
 @app.route("/api/chems/all", methods=["GET"])
-def chem_list():
-    allchems = chemsModel.query.all()
-    output = []
-    for ch in allchems:
-        currChem = {}
-        currChem["chem_active"] = ch.chem_active
-        currChem["chem_group"] = ch.chem_group
-        currChem["chem_irac"] = ch.chem_irac
-        output.append(currChem)
-    return jsonify(output)
+def get_chems():
+	all_chems = chemsModel.query.all()
+	result = chems_schema.dump(all_chems)
+	return jsonify(result)
+
+
+
+# @app.route("/api/chems/id=<int:id>", methods=["GET"])
+# def chem_id(id):
+#     ch = chemsModel.query.filter(chemsModel.id == id).first_or_404(
+#         description = 'The id {} was not found!'.format(id)
+#     )
+#     output = {}
+#     output["chem_active"] = ch.chem_active
+#     output["chem_group"] = ch.chem_group
+#     output["chem_irac"] = ch.chem_irac
+#     return jsonify(output)
 
 @app.route("/api/chems/id=<int:id>", methods=["GET"])
-def chem_id(id):
-    ch = chemsModel.query.filter(chemsModel.id == id).first_or_404(
-        description = 'The id {} was not found!'.format(id)
-    )
-    output = {}
-    output["chem_active"] = ch.chem_active
-    output["chem_group"] = ch.chem_group
-    output["chem_irac"] = ch.chem_irac
-    return jsonify(output)
+def get_chem(id):
+	chembyid = chemsModel.query.get(id)
+	# if len(chembyid) < 1:
+	# 	abort(404, 
+	# 		description = "The id was not found!"
+	# 	)
+	return chem_schema.jsonify(chembyid)
+
+
+# @app.route("/api/chems/active=<query>", methods=["GET"])
+# def chem_by_active(query):
+#     search = "%{}%".format(query)
+#     chemQuery = chemsModel.query.filter(chemsModel.chem_active.like(search)).all()
+#     if len(chemQuery) < 1:
+#         abort(404, 
+#             description = "No active similar to {} was found!".format(str(query))
+#         )
+#     output = []
+#     for ch in chemQuery:
+#         currChem = {}
+#         currChem["chem_active"] = ch.chem_active
+#         currChem["chem_group"] = ch.chem_group
+#         currChem["chem_irac"] = ch.chem_irac
+#         output.append(currChem)
+#     return jsonify(output)
 
 @app.route("/api/chems/active=<query>", methods=["GET"])
 def chem_by_active(query):
-    search = "%{}%".format(query)
-    chemQuery = chemsModel.query.filter(chemsModel.chem_active.like(search)).all()
-    if len(chemQuery) < 1:
-        abort(404, 
-            description = "No active similar to {} was found!".format(str(query))
-        )
-    output = []
-    for ch in chemQuery:
-        currChem = {}
-        currChem["chem_active"] = ch.chem_active
-        currChem["chem_group"] = ch.chem_group
-        currChem["chem_irac"] = ch.chem_irac
-        output.append(currChem)
-    return jsonify(output)
+	search = "%{}%".format(query)
+	chemQuery = chemsModel.query.filter(chemsModel.chem_active.like(search)).all()
+	if len(chemQuery) < 1:
+		abort(404, 
+			description = "No active similar to {} was found!".format(str(query))
+		)
+	result = chems_schema.dump(chemQuery)
+	return jsonify(result)
+
 
 @app.route("/api/species/all", methods=["GET"])
 def species_list():
@@ -140,4 +190,4 @@ def sp_by_name(query):
 
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=5000, debug=False)
+	app.run(host="0.0.0.0", port=5000, debug=True)
