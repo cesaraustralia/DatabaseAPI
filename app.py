@@ -10,8 +10,7 @@ from flask_sqlalchemy.model import Model
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-# app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@172.20.0.5:5432/postgres" % quote("{{ dbpass }}")
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@localhost:5432/postgres" % quote("cesardb@aws2021")
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@172.20.0.5:5432/postgres" % quote("{{ dbpass }}")
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 10 # second to recycle the db connection
 
 # init db
