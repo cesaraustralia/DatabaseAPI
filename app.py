@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify, render_template, abort, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from urllib.parse import ParseResult, quote
+from urllib.parse import quote
+from sqlalchemy import ForeignKey
 
 from flask_sqlalchemy.model import Model 
 
@@ -44,10 +45,20 @@ class speciesModel(db.Model):
     __tablename__ = "species"
     id = db.Column(db.Integer, primary_key=True)
     species = db.Column(db.String(100), nullable=False)
+    # common_name = db.Column(db.String(200))
+    # family = db.Column(db.String(100))
+    # order = db.Column(db.String(100))
+    # group = db.Column(db.String(50))
+    # host = db.Column(db.String(50))
 
-    def __init__(self, id, species):
+    def __init__(self, id, species): ## common_name, family, order, group, host
         self.id = id
         self.species = species
+        # self.common_name = common_name
+        # self.family = family
+        # self.order = order
+        # self.group = group
+        # self.host = host
 
 
 # class for paper table
@@ -71,14 +82,14 @@ class paperModel(db.Model):
 
 # class for resustance table
 class resistModel(db.Model):
-    __tablename__ = "resustance"
+    __tablename__ = "resistance"
     id = db.Column(db.Integer, primary_key=True)
     storedgrains = db.Column(db.Boolean, nullable=False)
-    species = db.Column(db.String(100), nullable=False) # * species [fix the reference connection]
+    species = db.Column(db.String(100), ForeignKey("speciesModel.species"), nullable=False)
     # lifestage = db.Column(db.String(50))
-    title = db.Column(db.String(300), nullable=False, unique=True) # * paper
+    title = db.Column(db.String(300), ForeignKey("paperModel.title"), nullable=False)
     absent_present_aprd = db.Column(db.SmallInteger)
-    chem_active = db.Column(db.String(75), nullable=False) # * chems
+    active = db.Column(db.String(75), ForeignKey("chemsModel.chem_active"), nullable=False)
     resistance = db.Column(db.SmallInteger, nullable=False)
     severity = db.Column(db.String(50))
     # crop = db.Column(db.String(50))
@@ -89,17 +100,14 @@ class resistModel(db.Model):
     # collect_year = db.Column(db.Integer)
     # chcek_point = db.Column(db.Data)
 
-    def __init__(self, id, storedgrains, species, 
-    title, absent_present_aprd, chem_active, 
-    resistance, severity, locality,
-    long, lat): # [lifestage, crop, state, collect_year, chcek_point]
+    def __init__(self, id, storedgrains, species, title, absent_present_aprd, active, resistance, severity, locality, long, lat): # [lifestage, crop, state, collect_year, chcek_point]
         self.id = id
         self.storedgrains = storedgrains
-        self. species = species
+        self.species = species
         # self.lifestage = lifestage
         self.title = title
         self.absent_present_aprd = absent_present_aprd
-        self.chem_active = chem_active
+        self.active = active
         self.resistance = resistance
         self.severity = severity
         # self.crop = crop
@@ -131,12 +139,20 @@ papers_schema = PaperSchema(many=True)
 
 # schema for species
 class SpeciesSchema(ma.Schema):
-    class Meta:
-        fields = ("species",) # to create a tuple with only one item, you have to add a comma after the item
+    class Meta: ## "common_name", "family", "order", "group", "host"
+        fields = ("species", ) # to create a tuple with only one item, you have to add a comma after the item
 # init schema
 sp_schema = SpeciesSchema(many=False)
 sps_schema = SpeciesSchema(many=True)
 
+# schema for resistance table
+class ResistSchema(ma.Schema):
+    class Meta:
+        fields = ("storedgrains", "species", "title", "absent_present_aprd", "active", 
+        "resistance", "severity", "locality", "long", "lat") # add the new ones when tables are updated
+# init schema
+resist_schema = ResistSchema(many=False)
+resists_schema = ResistSchema(many=True)
 
 
 # define the get requests
@@ -208,6 +224,34 @@ def sp_by_name(query):
             description = "No species name similar to {} was found!".format(str(query))
         )
     result = sps_schema.dump(speciesQuery)
+    return jsonify(result)
+
+
+@app.route("/api/resistance/all", methods=["GET"])
+def resist_list():
+    allresist = resistModel.query.all()
+    result = resists_schema.dump(allresist)
+    return jsonify(result)
+
+@app.route("/api/resistance/id=<int:id>", methods=["GET"])
+def get_resist(id):
+    resistbyid = resistModel.query.get(id)
+    if resistbyid is None:
+        abort(404, 
+            description = "The selected id was not found!"
+        )
+    return resist_schema.jsonify(resistbyid)
+
+## **** add more filter here *********
+@app.route("/api/resistance/locality=<query>", methods=["GET"])
+def resist_filter(query):
+    search = "%{}%".format(query)
+    resistQuery = resistModel.query.filter(resistModel.locality.like(search)).all()
+    if len(resistQuery) < 1:
+        abort(404, 
+            description = "No resistance with locality similar to {} was found!".format(str(query))
+        )
+    result = resists_schema.dump(resistQuery)
     return jsonify(result)
 
 
