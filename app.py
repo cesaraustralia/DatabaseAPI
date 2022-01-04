@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, render_template, abort, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from urllib.parse import quote
+from urllib.parse import ParseResult, quote
 
 from flask_sqlalchemy.model import Model 
 
@@ -10,7 +10,8 @@ from flask_sqlalchemy.model import Model
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@172.20.0.5:5432/postgres" % quote("{{ dbpass }}")
+# app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@172.20.0.5:5432/postgres" % quote("{{ dbpass }}")
+app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@localhost:5432/postgres" % quote("cesardb@aws2021")
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 10 # second to recycle the db connection
 
 # init db
@@ -21,6 +22,7 @@ ma = Marshmallow(app)
 # app.register_blueprint(request_api.get_blueprint())
 
 # app.register_blueprint(api)
+
 
 
 # class for chem table
@@ -87,6 +89,7 @@ class resistModel(db.Model):
     lat = db.Column(db.Numeric(precision=6, scale=3))
     # collect_year = db.Column(db.Integer)
     # chcek_point = db.Column(db.Data)
+
     def __init__(self, id, storedgrains, species, 
     title, absent_present_aprd, chem_active, 
     resistance, severity, locality,
@@ -109,15 +112,33 @@ class resistModel(db.Model):
         # self.chcek_point = chcek_point
 
 
+
 # create schema for the tables
 # allowed feild to show on the get requests
 class ChemSchema(ma.Schema):
 	class Meta:
 		fields = ("chem_active", "chem_group", "chem_irac")
-
 # init schema
 chem_schema = ChemSchema(many=False)
 chems_schema = ChemSchema(many=True)
+
+# schema for paper table
+class PaperSchema(ma.Schema):
+    class Meta:
+        fields = ("author", "year", "title", "journal", "doi")
+# init schema
+paper_schema = PaperSchema(many=False)
+papers_schema = PaperSchema(many=True)
+
+# schema for species
+class SpeciesSchema(ma.Schema):
+    class Meta:
+        fields = ("species",) # to create a tuple with only one item, you have to add a comma after the item
+# init schema
+sp_schema = SpeciesSchema(many=False)
+sps_schema = SpeciesSchema(many=True)
+
+
 
 # define the get requests
 @app.route("/")
@@ -126,24 +147,12 @@ chems_schema = ChemSchema(many=True)
 def home():
     return redirect(url_for("get_docs")) # re-direct to docs
 
-
 @app.route("/api/docs")
 def get_docs():
     print("sending docs")
     return render_template("swaggerui.html")
 
 
-# @app.route("/api/chems/all", methods=["GET"])
-# def chem_list():
-#     allchems = chemsModel.query.all()
-#     output = []
-#     for ch in allchems:
-#         currChem = {}
-#         currChem["chem_active"] = ch.chem_active
-#         currChem["chem_group"] = ch.chem_group
-#         currChem["chem_irac"] = ch.chem_irac
-#         output.append(currChem)
-#     return jsonify(output)
 
 # get request with schema
 @app.route("/api/chems/all", methods=["GET"])
@@ -153,44 +162,15 @@ def get_chems():
 	return jsonify(result)
 
 
-
-# @app.route("/api/chems/id=<int:id>", methods=["GET"])
-# def chem_id(id):
-#     ch = chemsModel.query.filter(chemsModel.id == id).first_or_404(
-#         description = 'The id {} was not found!'.format(id)
-#     )
-#     output = {}
-#     output["chem_active"] = ch.chem_active
-#     output["chem_group"] = ch.chem_group
-#     output["chem_irac"] = ch.chem_irac
-#     return jsonify(output)
-
 @app.route("/api/chems/id=<int:id>", methods=["GET"])
 def get_chem(id):
-	chembyid = chemsModel.query.get(id)
-	# if len(chembyid) < 1:
-	# 	abort(404, 
-	# 		description = "The id was not found!"
-	# 	)
-	return chem_schema.jsonify(chembyid)
+    chembyid = chemsModel.query.get(id)
+    if chembyid is None:
+        abort(404, 
+            description = "The selected id was not found!"
+        )
+    return chem_schema.jsonify(chembyid)
 
-
-# @app.route("/api/chems/active=<query>", methods=["GET"])
-# def chem_by_active(query):
-#     search = "%{}%".format(query)
-#     chemQuery = chemsModel.query.filter(chemsModel.chem_active.like(search)).all()
-#     if len(chemQuery) < 1:
-#         abort(404, 
-#             description = "No active similar to {} was found!".format(str(query))
-#         )
-#     output = []
-#     for ch in chemQuery:
-#         currChem = {}
-#         currChem["chem_active"] = ch.chem_active
-#         currChem["chem_group"] = ch.chem_group
-#         currChem["chem_irac"] = ch.chem_irac
-#         output.append(currChem)
-#     return jsonify(output)
 
 @app.route("/api/chems/active=<query>", methods=["GET"])
 def chem_by_active(query):
@@ -204,16 +184,21 @@ def chem_by_active(query):
 	return jsonify(result)
 
 
+
 @app.route("/api/species/all", methods=["GET"])
 def species_list():
     allspecies = speciesModel.query.all()
-    output = []
-    for sp in allspecies:
-        currSp = {}
-        # currSp["id"] = sp.id
-        currSp["name"] = sp.species
-        output.append(currSp)
-    return jsonify(output)
+    result = sps_schema.dump(allspecies)
+    return jsonify(result)
+
+@app.route("/api/species/id=<int:id>", methods=["GET"])
+def get_species(id):
+    speciesbyid = speciesModel.query.get(id)
+    if speciesbyid is None:
+        abort(404, 
+            description = "The selected id was not found!"
+        )
+    return sp_schema.jsonify(speciesbyid)
 
 @app.route("/api/species/name=<query>", methods=["GET"])
 def sp_by_name(query):
@@ -223,12 +208,8 @@ def sp_by_name(query):
         abort(404, 
             description = "No species name similar to {} was found!".format(str(query))
         )
-    output = []
-    for sp in speciesQuery:
-        currSp = {}
-        currSp["name"] = sp.species
-        output.append(currSp)
-    return jsonify(output)
+    result = sps_schema.dump(speciesQuery)
+    return jsonify(result)
 
 
 if __name__ == "__main__":
