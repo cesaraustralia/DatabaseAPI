@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify, render_template, abort, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from urllib.parse import quote 
+from urllib.parse import quote
+
+from flask_sqlalchemy.model import Model 
 
 
 # from routes import api
@@ -9,7 +11,7 @@ from urllib.parse import quote
 app = Flask(__name__)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@172.20.0.5:5432/postgres" % quote("{{ dbpass }}")
-# app.config["SQLALCHEMY_POOL_RECYCLE"] = 10 # second to recycle the db connection
+app.config["SQLALCHEMY_POOL_RECYCLE"] = 10 # second to recycle the db connection
 
 # init db
 db = SQLAlchemy(app)
@@ -64,6 +66,47 @@ class paperModel(db.Model):
         self.title = title
         self.journal = journal
         self.doi = doi
+
+
+# class for resustance table
+class resistModel(db.Model):
+    __tablename__ = "resustance"
+    id = db.Column(db.Integer, primary_key=True)
+    storedgrains = db.Column(db.Boolean, nullable=False)
+    species = db.Column(db.String(100), nullable=False) # * species [fix the reference connection]
+    # lifestage = db.Column(db.String(50))
+    title = db.Column(db.String(300), nullable=False, unique=True) # * paper
+    absent_present_aprd = db.Column(db.SmallInteger)
+    chem_active = db.Column(db.String(75), nullable=False) # * chems
+    resistance = db.Column(db.SmallInteger, nullable=False)
+    severity = db.Column(db.String(50))
+    # crop = db.Column(db.String(50))
+    # state = db.Column(db.String(25))
+    locality = db.Column(db.String(50))
+    long = db.Column(db.Numeric(precision=6, scale=3))
+    lat = db.Column(db.Numeric(precision=6, scale=3))
+    # collect_year = db.Column(db.Integer)
+    # chcek_point = db.Column(db.Data)
+    def __init__(self, id, storedgrains, species, 
+    title, absent_present_aprd, chem_active, 
+    resistance, severity, locality,
+    long, lat): # [lifestage, crop, state, collect_year, chcek_point]
+        self.id = id
+        self.storedgrains = storedgrains
+        self. species = species
+        # self.lifestage = lifestage
+        self.title = title
+        self.absent_present_aprd = absent_present_aprd
+        self.chem_active = chem_active
+        self.resistance = resistance
+        self.severity = severity
+        # self.crop = crop
+        # self.state = state
+        self.locality = locality
+        self.long = long
+        self.lat = lat
+        # self.collect_year = collect_year
+        # self.chcek_point = chcek_point
 
 
 # create schema for the tables
