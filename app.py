@@ -6,10 +6,11 @@ from sqlalchemy import ForeignKey
 
 from flask_sqlalchemy.model import Model 
 
-
-# from routes import api
+# import blueprint
+from api_blueprint import api
 
 app = Flask(__name__)
+app.register_blueprint(api, url_prefix="") # register bluprint
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@172.20.0.5:5432/postgres" % quote("{{ dbpass }}")
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 10 # second to recycle the db connection
@@ -18,10 +19,6 @@ app.config["SQLALCHEMY_POOL_RECYCLE"] = 10 # second to recycle the db connection
 db = SQLAlchemy(app)
 # init ma
 ma = Marshmallow(app)
-
-# app.register_blueprint(request_api.get_blueprint())
-
-# app.register_blueprint(api)
 
 
 
@@ -154,105 +151,6 @@ class ResistSchema(ma.Schema):
 resist_schema = ResistSchema(many=False)
 resists_schema = ResistSchema(many=True)
 
-
-# define the get requests
-@app.route("/")
-@app.route("/api")
-@app.route("/api/")
-def home():
-    return redirect(url_for("get_docs")) # re-direct to docs
-
-@app.route("/api/docs")
-def get_docs():
-    print("sending docs")
-    return render_template("swaggerui.html")
-
-
-
-# get request with schema
-@app.route("/api/chems/all", methods=["GET"])
-def get_chems():
-	all_chems = chems_table.query.all()
-	result = chems_schema.dump(all_chems)
-	return jsonify(result)
-
-
-@app.route("/api/chems/id=<int:id>", methods=["GET"])
-def get_chem(id):
-    chembyid = chems_table.query.get(id)
-    if chembyid is None:
-        abort(404, 
-            description = "The selected id was not found!"
-        )
-    return chem_schema.jsonify(chembyid)
-
-
-@app.route("/api/chems/active=<query>", methods=["GET"])
-def chem_by_active(query):
-	search = "%{}%".format(query)
-	chemQuery = chems_table.query.filter(chems_table.chem_active.like(search)).all()
-	if len(chemQuery) < 1:
-		abort(404, 
-			description = "No active similar to {} was found!".format(str(query))
-		)
-	result = chems_schema.dump(chemQuery)
-	return jsonify(result)
-
-
-
-@app.route("/api/species/all", methods=["GET"])
-def species_list():
-    allspecies = species_table.query.all()
-    result = sps_schema.dump(allspecies)
-    return jsonify(result)
-
-@app.route("/api/species/id=<int:id>", methods=["GET"])
-def get_species(id):
-    speciesbyid = species_table.query.get(id)
-    if speciesbyid is None:
-        abort(404, 
-            description = "The selected id was not found!"
-        )
-    return sp_schema.jsonify(speciesbyid)
-
-@app.route("/api/species/name=<query>", methods=["GET"])
-def sp_by_name(query):
-    search = "%{}%".format(query)
-    speciesQuery = species_table.query.filter(species_table.species.like(search)).all()
-    if len(speciesQuery) < 1:
-        abort(404, 
-            description = "No species name similar to {} was found!".format(str(query))
-        )
-    result = sps_schema.dump(speciesQuery)
-    return jsonify(result)
-
-
-@app.route("/api/resistance/all", methods=["GET"])
-def resist_list():
-    allresist = resist_table.query.all()
-    result = resists_schema.dump(allresist)
-    return jsonify(result)
-
-@app.route("/api/resistance/id=<int:id>", methods=["GET"])
-def get_resist(id):
-    resistbyid = resist_table.query.get(id)
-    if resistbyid is None:
-        abort(404, 
-            description = "The selected id was not found!"
-        )
-    return resist_schema.jsonify(resistbyid)
-
-## **** add more filter here *********
-@app.route("/api/resistance/locality=<query>", methods=["GET"])
-def resist_filter(query):
-    search = "%{}%".format(query)
-    resistQuery = resist_table.query.filter(resist_table.locality.like(search)).all()
-    if len(resistQuery) < 1:
-        abort(404, 
-            description = "No resistance with locality similar to {} was found!".format(str(query))
-        )
-    result = resists_schema.dump(resistQuery)
-    return jsonify(result)
 
 
 if __name__ == "__main__":

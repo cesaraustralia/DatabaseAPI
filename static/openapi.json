@@ -22,18 +22,6 @@
           "Chemicals"
         ],
         "description": "Returns all chems",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "all",
-            "required": true,
-            "description": "get all the chems",
-            "schema": {
-              "type": "string",
-              "example": "/api/chems/all"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful operation",
