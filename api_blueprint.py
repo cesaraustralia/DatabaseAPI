@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, render_template, abort, redirect, url_for
 
 api = Blueprint("api", __name__, static_folder="static", template_folder="template")
 
+# import database connections/models from app.py
 from app import *
 
 
@@ -79,11 +80,11 @@ def sp_by_name(query):
     return jsonify(result)
 
 
-@api.route("/api/resistance/all", methods=["GET"])
-def resist_list():
-    allresist = resist_table.query.all()
-    result = resists_schema.dump(allresist)
-    return jsonify(result)
+# @api.route("/api/resistance/all", methods=["GET"])
+# def resist_list():
+#     allresist = resist_table.query.all()
+#     result = resists_schema.dump(allresist)
+#     return jsonify(result)
 
 @api.route("/api/resistance/id=<int:id>", methods=["GET"])
 def get_resist(id):

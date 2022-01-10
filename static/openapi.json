@@ -118,18 +118,6 @@
           "Species"
         ],
         "description": "Returns all species",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "all",
-            "required": true,
-            "description": "get all the species",
-            "schema": {
-              "type": "string",
-              "example": "/api/species"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -182,6 +170,78 @@
           }
         }
       }
+    },
+    "/api/resistance/id={resistID}": {
+      "description": "get resistance by id",
+      "get": {
+        "tags": [
+          "Resistance"
+        ],
+        "description": "Returns resistance by id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "resistID",
+            "required": true,
+            "description": "get a resistance case by id",
+            "schema": {
+              "type": "integer",
+              "example": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resistance"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Method Not Found. (Typically means we couldn't find the Id)."
+          }
+        }
+      }
+    },
+    "/api/resistance/locality={search}": {
+      "description": "get resistance by searching locality",
+      "get": {
+        "tags": [
+          "Resistance"
+        ],
+        "description": "Returns resistance by search locality",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "search",
+            "required": true,
+            "description": "get a resistance case by searching locality",
+            "schema": {
+              "type": "string",
+              "example": "Bell"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/resistance"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Method Not Found. The species name not found!"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -209,6 +269,51 @@
           "name": {
             "type": "string",
             "description": "The species scientific name"
+          }
+        }
+      },
+      "resistance": {
+        "type": "object",
+        "properties": {
+          "absent_present_aprd": {
+            "type": "integer",
+            "description": "No description is provided!"
+          },
+          "active": {
+            "type": "string",
+            "description": "The active ingridients"
+          },
+          "lat": {
+            "type": "number",
+            "description": "Latitude of the observation"
+          },
+          "long": {
+            "type": "number",
+            "description": "Longitude of the observation"
+          },
+          "locality": {
+            "type": "string",
+            "description": "Location"
+          },
+          "resistance": {
+            "type": "integer",
+            "description": "Chemical resistance - binary"
+          },
+          "severity": {
+            "type": "string",
+            "description": "The severity of chemical resistance"
+          },
+          "species": {
+            "type": "string",
+            "description": "Name of the species"
+          },
+          "storedgrains": {
+            "type": "boolean",
+            "description": "No description is provided!"
+          },
+          "title": {
+            "type": "string",
+            "description": "The title of the publication reported the resistance case"
           }
         }
       }
