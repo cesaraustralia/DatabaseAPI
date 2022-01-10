@@ -26,7 +26,7 @@ ma = Marshmallow(app)
 
 
 # class for chem table
-class chemsModel(db.Model):
+class chems_table(db.Model):
     __tablename__ = "chems"
     id = db.Column(db.Integer, primary_key=True)
     chem_active = db.Column(db.String(75), nullable=False)
@@ -41,7 +41,7 @@ class chemsModel(db.Model):
 
 
 # class for species table
-class speciesModel(db.Model):
+class species_table(db.Model):
     __tablename__ = "species"
     id = db.Column(db.Integer, primary_key=True)
     species = db.Column(db.String(100), nullable=False)
@@ -62,7 +62,7 @@ class speciesModel(db.Model):
 
 
 # class for paper table
-class paperModel(db.Model):
+class papers_table(db.Model):
     __tablename__ = "papers"
     id = db.Column(db.Integer, primary_key=True)
     author = db.Column(db.String(200), nullable=True)
@@ -81,15 +81,15 @@ class paperModel(db.Model):
 
 
 # class for resustance table
-class resistModel(db.Model):
+class resist_table(db.Model):
     __tablename__ = "resistance"
     id = db.Column(db.Integer, primary_key=True)
     storedgrains = db.Column(db.Boolean, nullable=False)
-    species = db.Column(db.String(100), ForeignKey("speciesModel.species"), nullable=False)
+    species = db.Column(db.String(100), ForeignKey("species_table.species"), nullable=False)
     # lifestage = db.Column(db.String(50))
-    title = db.Column(db.String(300), ForeignKey("paperModel.title"), nullable=False)
+    title = db.Column(db.String(300), ForeignKey("papers_table.title"), nullable=False)
     absent_present_aprd = db.Column(db.SmallInteger)
-    active = db.Column(db.String(75), ForeignKey("chemsModel.chem_active"), nullable=False)
+    active = db.Column(db.String(75), ForeignKey("chems_table.chem_active"), nullable=False)
     resistance = db.Column(db.SmallInteger, nullable=False)
     severity = db.Column(db.String(50))
     # crop = db.Column(db.String(50))
@@ -172,14 +172,14 @@ def get_docs():
 # get request with schema
 @app.route("/api/chems/all", methods=["GET"])
 def get_chems():
-	all_chems = chemsModel.query.all()
+	all_chems = chems_table.query.all()
 	result = chems_schema.dump(all_chems)
 	return jsonify(result)
 
 
 @app.route("/api/chems/id=<int:id>", methods=["GET"])
 def get_chem(id):
-    chembyid = chemsModel.query.get(id)
+    chembyid = chems_table.query.get(id)
     if chembyid is None:
         abort(404, 
             description = "The selected id was not found!"
@@ -190,7 +190,7 @@ def get_chem(id):
 @app.route("/api/chems/active=<query>", methods=["GET"])
 def chem_by_active(query):
 	search = "%{}%".format(query)
-	chemQuery = chemsModel.query.filter(chemsModel.chem_active.like(search)).all()
+	chemQuery = chems_table.query.filter(chems_table.chem_active.like(search)).all()
 	if len(chemQuery) < 1:
 		abort(404, 
 			description = "No active similar to {} was found!".format(str(query))
@@ -202,13 +202,13 @@ def chem_by_active(query):
 
 @app.route("/api/species/all", methods=["GET"])
 def species_list():
-    allspecies = speciesModel.query.all()
+    allspecies = species_table.query.all()
     result = sps_schema.dump(allspecies)
     return jsonify(result)
 
 @app.route("/api/species/id=<int:id>", methods=["GET"])
 def get_species(id):
-    speciesbyid = speciesModel.query.get(id)
+    speciesbyid = species_table.query.get(id)
     if speciesbyid is None:
         abort(404, 
             description = "The selected id was not found!"
@@ -218,7 +218,7 @@ def get_species(id):
 @app.route("/api/species/name=<query>", methods=["GET"])
 def sp_by_name(query):
     search = "%{}%".format(query)
-    speciesQuery = speciesModel.query.filter(speciesModel.species.like(search)).all()
+    speciesQuery = species_table.query.filter(species_table.species.like(search)).all()
     if len(speciesQuery) < 1:
         abort(404, 
             description = "No species name similar to {} was found!".format(str(query))
@@ -229,13 +229,13 @@ def sp_by_name(query):
 
 @app.route("/api/resistance/all", methods=["GET"])
 def resist_list():
-    allresist = resistModel.query.all()
+    allresist = resist_table.query.all()
     result = resists_schema.dump(allresist)
     return jsonify(result)
 
 @app.route("/api/resistance/id=<int:id>", methods=["GET"])
 def get_resist(id):
-    resistbyid = resistModel.query.get(id)
+    resistbyid = resist_table.query.get(id)
     if resistbyid is None:
         abort(404, 
             description = "The selected id was not found!"
@@ -246,7 +246,7 @@ def get_resist(id):
 @app.route("/api/resistance/locality=<query>", methods=["GET"])
 def resist_filter(query):
     search = "%{}%".format(query)
-    resistQuery = resistModel.query.filter(resistModel.locality.like(search)).all()
+    resistQuery = resist_table.query.filter(resist_table.locality.like(search)).all()
     if len(resistQuery) < 1:
         abort(404, 
             description = "No resistance with locality similar to {} was found!".format(str(query))
