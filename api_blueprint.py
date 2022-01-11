@@ -1,4 +1,3 @@
-
 from flask import Blueprint, jsonify, render_template, abort, redirect, url_for
 
 api = Blueprint("api", __name__, static_folder="static", template_folder="template")

@@ -1,12 +1,11 @@
-from flask import Flask, request, jsonify, render_template, abort, redirect, url_for
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from urllib.parse import quote
 from sqlalchemy import ForeignKey
 
-from flask_sqlalchemy.model import Model 
 
-# import blueprint
+# import blueprint of routes
 from api_blueprint import api
 
 app = Flask(__name__)
@@ -154,4 +153,4 @@ resists_schema = ResistSchema(many=True)
 
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=5000, debug=True)
+	app.run(host="0.0.0.0", port=5000, debug=False)
