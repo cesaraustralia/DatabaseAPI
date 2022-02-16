@@ -11,6 +11,7 @@ from api_blueprint import api
 app = Flask(__name__)
 app.register_blueprint(api, url_prefix="") # register bluprint
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# the "dbpassword" is necessary to be the same as the Ansible variable for importing the correct password
 app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://admin:%s@172.20.0.5:5432/postgres" % quote("dbpassword")
 app.config["SQLALCHEMY_POOL_RECYCLE"] = 10 # second to recycle the db connection
 
