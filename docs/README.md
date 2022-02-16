@@ -2,7 +2,7 @@
 
 ## Development notes
 
-New get request can be added to the `app.py` script. The new get request should also be added to the `static/openapi.json` file. To do so, visit [editor.swagger.io](https://editor.swagger.io/#) website and edit the YAML file and convert it JASON when done.
+New get request can be added to the `api_blueprint.py` script. The new get request should also be added to the `static/openapi.json` file. To do so, visit [editor.swagger.io](https://editor.swagger.io/#) website and edit the YAML file and convert it JASON when done.
 
 ## Containerisation
 To containerise the app:
@@ -29,5 +29,7 @@ See [here](https://dev.to/rizkyrajitha/connect-api-and-a-database-with-docker-ne
 
 ## API on AWS server
 * pull the API docker image and run on the EC2 server
-* create a docker network and add both API and PostgreSQL containers to the network
+* replace the database password
+* create a docker network in docker compose
+* add both API and PostgreSQL containers to the network
 * make sure the port 5000 is accessible from the EC2 instance.
